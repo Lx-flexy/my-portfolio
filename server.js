@@ -273,11 +273,12 @@ async function ensureDefaultPassword() {
   } catch(e) { console.error('Password check error:', e.message); }
 }
 
-app.listen(PORT, async () => {
-  await ensureDefaultPassword();
-  console.log(`\n🚀 http://localhost:${PORT}`);
-  console.log(`⚙️  Admin: http://localhost:${PORT}/admin/login`);
-  console.log(`💾 Storage: ${USE_JSONBIN ? 'JSONBin.io ☁️' : 'Local JSON 📁'}\n`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    await ensureDefaultPassword();
+    console.log(`🚀 http://localhost:${PORT}`);
+    console.log(`⚙️ Admin: http://localhost:${PORT}/admin/login`);
+  });
+}
 
 module.exports = app;
