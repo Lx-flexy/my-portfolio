@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Space Grotesk',sans-serif; background:#0a0a0f; color:#e2e2f0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; }
+.card { background:#111118; border:1px solid rgba(99,102,241,0.15); border-radius:24px; padding:48px; width:100%; max-width:420px; position:relative; z-index:1; }
+.logo { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; margin-bottom:8px; }
+.subtitle { text-align:center; color:#8888aa; font-size:0.9rem; margin-bottom:36px; }
+.form-group { margin-bottom:20px; }
+label { display:block; font-size:0.85rem; color:#8888aa; margin-bottom:8px; font-weight:500; }
+input { width:100%; padding:14px 16px; background:#1a1a24; border:1px solid rgba(99,102,241,0.2); border-radius:12px; color:#e2e2f0; font-family:'Space Grotesk',sans-serif; font-size:1rem; outline:none; transition:border-color 0.3s; }
+input:focus { border-color:#6366f1; }
+.btn { width:100%; padding:14px; background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff; border:none; border-radius:12px; font-size:1rem; font-weight:600; cursor:pointer; font-family:'Space Grotesk',sans-serif; transition:all 0.3s; margin-top:8px; }
+.btn:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 8px 30px rgba(99,102,241,0.3); }
+.error { color:#f87171; font-size:0.85rem; text-align:center; margin-top:12px; display:none; padding:10px; background:rgba(248,113,113,0.1); border-radius:8px; border:1px solid rgba(248,113,113,0.2); }
+.back-link { display:block; text-align:center; margin-top:20px; color:#8888aa; text-decoration:none; font-size:0.85rem; transition:color 0.3s; }
+.back-link:hover { color:#6366f1; }
+.setup-note { background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; margin-bottom:24px; font-size:0.82rem; color:#8888aa; line-height:1.6; }
+.setup-note strong { color:#6366f1; }
+.loading { display:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">⚙️ Admin</div>
+  <p class="subtitle">Portfolio Admin Panel</p>
+  
+  <div class="setup-note">
+    <strong>First Time?</strong> Default password is <strong>admin123</strong><br>
+    Please change it after first login!
+  </div>
+
+  <div class="form-group">
+    <label>Admin Password</label>
+    <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()">
+  </div>
+  <button class="btn" onclick="login()" id="loginBtn">Login to Admin Panel</button>
+  <div class="error" id="error"></div>
+  <a href="/" class="back-link">← Back to Portfolio</a>
+</div>
+
+<script>
+
+
+async function login() {
+  const pass = document.getElementById('password').value;
+  const err = document.getElementById('error');
+  const btn = document.getElementById('loginBtn');
+  if(!pass) { showError('Please enter password'); return; }
+  
+  btn.textContent = 'Logging in...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pass})
+    });
+    const data = await res.json();
+    
+    if(data.success) {
+      localStorage.setItem('admin_token', data.token);
+      window.location.href = '/admin';
+    } else {
+      showError(data.error || 'Wrong password!');
+      btn.textContent = 'Login to Admin Panel';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    showError('Server error. Is server running?');
+    btn.textContent = 'Login to Admin Panel';
+    btn.disabled = false;
+  }
+}
+
+function showError(msg) {
+  const err = document.getElementById('error');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+
+</script>
+</body>
+</html>
